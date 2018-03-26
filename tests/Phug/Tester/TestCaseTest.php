@@ -10,7 +10,7 @@ class TestCaseTest extends TestCase
     {
         $this->runXdebug();
         $this->renderer->renderFile(__DIR__.'/../../../tests/index.pug');
-        var_dump($this->getCoverage());
+        var_dump(array_keys($this->getCoverage()));
         exit;
     }
 }

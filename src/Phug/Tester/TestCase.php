@@ -53,7 +53,16 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function getCoverage()
     {
-        return xdebug_get_code_coverage();
+        $coverage = [];
+        $cache = $this->renderer->getOption('cache_dir').DIRECTORY_SEPARATOR;
+        $len = strlen($cache);
+        foreach (xdebug_get_code_coverage() as $file => $results) {
+            if (substr(realpath($file), 0, $len) === $cache) {
+                $coverage[$file] = $results;
+            }
+        }
+
+        return $coverage;
     }
 
     /**
@@ -65,7 +74,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         static::addEmptyDirectory($cache);
 
         $this->renderer = new Renderer([
-            'cache_dir' => $cache,
+            'cache_dir' => realpath($cache),
         ]);
     }
 }
