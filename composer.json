@@ -1,0 +1,40 @@
+{
+    "name": "phug/tester",
+    "type": "library",
+    "keywords": ["phug", "tester", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
+    "description": "",
+    "license": "MIT",
+    "homepage": "http://phug-lang.com",
+    "authors": [
+        {
+            "name": "KyleKatarn",
+            "email": "jade-php@selfbuild.fr",
+            "homepage": "http://github.com/kylekatarnls"
+        }
+    ],
+    "support": {
+        "email": "support@phug-lang.com",
+        "issues": "https://github.com/phug-php/compiler/issues",
+        "source": "https://github.com/phug-php/compiler",
+        "docs": "http://phug-lang.com/docs"
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.5.0",
+        "ext-xdebug": "*",
+        "phug/renderer": "^0.4.0",
+        "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0"
+    },
+    "require-dev": {
+        "phug/dev-tool": "^0.1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "./src"
+        }
+    },
+    "bin": [
+        "phug-tester"
+    ],
+    "suggest": {}
+}

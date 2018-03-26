@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+use Phug\Tester;
+
+$autoload = 'vendor/autoload.php';
+if (!file_exists($autoload)) {
+    $autoload = __DIR__.'/../autoload.php';
+}
+if (!file_exists($autoload)) {
+    $autoload = __DIR__.'/../../autoload.php';
+}
+if (!file_exists($autoload)) {
+    $autoload = __DIR__.'/vendor/autoload.php';
+}
+if (!file_exists($autoload)) {
+    throw new \RuntimeException('Autoload not found. Please run: composer install');
+}
+
+include $autoload;
+
+$cli = new Cli();
+
+exit($cli->run($argv) ? 0 : 1);
