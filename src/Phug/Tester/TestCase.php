@@ -6,63 +6,51 @@ use Phug\Renderer;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @var Renderer
+     */
     protected $renderer;
 
-    protected static function emptyDirectory($dir)
+    /**
+     * @param string     $file
+     * @param array      $locals
+     * @param array|null $options
+     *
+     * @return string
+     *
+     * @throws \Phug\RendererException
+     */
+    protected function renderFile($file, $locals = [], $options = null)
     {
-        if (!is_dir($dir)) {
-            return;
+        if ($options) {
+            $this->renderer->setOptions($options);
         }
 
-        foreach (scandir($dir) as $file) {
-            if ($file !== '.' && $file !== '..') {
-                $path = $dir.'/'.$file;
-                if (is_dir($path)) {
-                    static::emptyDirectory($path);
-                    rmdir($path);
-
-                    continue;
-                }
-
-                unlink($path);
-            }
-        }
+        return $this->renderer->renderFile($file, $locals);
     }
 
-    protected static function removeDirectory($dir)
+    /**
+     * @return array
+     */
+    protected function getPaths()
     {
-        static::emptyDirectory($dir);
-        rmdir($dir);
+        return ['views'];
     }
 
-    protected static function addEmptyDirectory($dir)
+    /**
+     * @return array
+     */
+    protected function getExtensions()
     {
-        if (file_exists($dir)) {
-            is_dir($dir) ? static::emptyDirectory($dir) : unlink($dir);
-
-            return;
-        }
-
-        mkdir($dir, 0777, true);
+        return ['', '.pug', '.jade'];
     }
 
-    protected function runXdebug()
+    /**
+     * @return Renderer|string
+     */
+    protected function getRenderer()
     {
-        xdebug_start_code_coverage();
-    }
-
-    protected function getCoverage()
-    {
-        $coverage = [];
-        $cache = $this->renderer->getOption('cache_dir').DIRECTORY_SEPARATOR;
-        $len = strlen($cache);
-        foreach (xdebug_get_code_coverage() as $file => $results) {
-            if (substr(realpath($file), 0, $len) === $cache) {
-                $coverage[$file] = $results;
-            }
-        }
-
-        return $coverage;
+        return Renderer::class;
     }
 
     /**
@@ -70,11 +58,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function setUp()
     {
-        $cache = sys_get_temp_dir().DIRECTORY_SEPARATOR.'pug-cache-'.mt_rand(0, 9999999);
-        static::addEmptyDirectory($cache);
-
-        $this->renderer = new Renderer([
-            'cache_dir' => realpath($cache),
-        ]);
+        $this->renderer = Coverage::get()->createRenderer(
+            $this->getRenderer(),
+            $this->getExtensions(),
+            $this->getPaths()
+        );
     }
 }

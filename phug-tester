@@ -1,16 +1,20 @@
 #!/usr/bin/env php
 <?php
 
-use Phug\Tester;
+use Phug\Tester\Cli;
 
+$vendor = 'vendor';
 $autoload = 'vendor/autoload.php';
 if (!file_exists($autoload)) {
+    $vendor = __DIR__.'/..';
     $autoload = __DIR__.'/../autoload.php';
 }
 if (!file_exists($autoload)) {
+    $vendor = __DIR__.'/../..';
     $autoload = __DIR__.'/../../autoload.php';
 }
 if (!file_exists($autoload)) {
+    $vendor = __DIR__.'/vendor';
     $autoload = __DIR__.'/vendor/autoload.php';
 }
 if (!file_exists($autoload)) {
@@ -19,6 +23,6 @@ if (!file_exists($autoload)) {
 
 include $autoload;
 
-$cli = new Cli();
+$cli = new Cli($vendor);
 
 exit($cli->run($argv) ? 0 : 1);
