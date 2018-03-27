@@ -1,5 +1,5 @@
 
-Phug Renderer
+Phug Tester
 ===========
 
 What is Phug Tester?
@@ -20,6 +20,10 @@ composer require phug/tester
 Usage
 -----
 
+```shell
+./phug-tester --pug-coverage-threshold=90 --pug-text-coverage --pug-html-coverage=coverage/pug
+```
+
 ```php
 <?php
 
@@ -27,9 +31,11 @@ class MyTemplatesTest extends Phug\Tester\TestCase
 {
     public function testContactView()
     {
-        self::assertRenderToFile('tests/expected-result.html', 'views/contact.pug', [
+        $html = $this->renderFile('views/contact.pug', [
             'title' => 'Add some locals',
         ]);
+        self::assertContains('Bar', $html);
+        self::assertNotContains('Foo', $html);
     }
 }
 ```
