@@ -14,6 +14,15 @@ class Cli
      */
     private $command;
 
+    protected static $coverageOptions = [
+        '--coverage-clover' => false,
+        '--coverage-crap4j' => false,
+        '--coverage-html'   => false,
+        '--coverage-php'    => false,
+        '--coverage-text'   => true,
+        '--coverage-xml'    => false,
+    ];
+
     public function __construct($vendor)
     {
         $this->vendor = $vendor;
@@ -26,7 +35,9 @@ class Cli
 
     protected function runPhpunit($arguments)
     {
-        $this->command = new PhpunitCommand();
+        if (!$this->command) {
+            $this->command = new PhpunitCommand();
+        }
 
         return !$this->command->run($arguments, false);
     }

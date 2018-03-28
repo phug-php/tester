@@ -82,9 +82,28 @@ class Coverage
 
     public function runXDebug()
     {
+        // @codeCoverageIgnoreStart
+        if (!function_exists('xdebug_code_coverage_started')) {
+            throw new \BadFunctionCallException('You need to install XDebug to use coverage feature.');
+        }
+        // @codeCoverageIgnoreEnd
         if (!xdebug_code_coverage_started()) {
             xdebug_start_code_coverage();
         }
+    }
+
+    protected static function getCoverageData()
+    {
+        var_dump(array_keys(TestRunnerInterceptor::getLastCoverage()->getData(true)), xdebug_get_code_coverage());
+        exit;
+        if (xdebug_code_coverage_started()) {
+            $data = xdebug_get_code_coverage();
+            xdebug_stop_code_coverage();
+
+            return $data;
+        }
+
+        return TestRunnerInterceptor::getLastCoverage()->getData(true);
     }
 
     private function getLocationPath($path)
@@ -169,7 +188,7 @@ class Coverage
             $recordLocation($node->getSourceLocation());
         }
 
-        foreach (xdebug_get_code_coverage() as $file => $results) {
+        foreach (static::getCoverageData() as $file => $results) {
             if (substr(realpath($file), 0, $len) === $cache) {
                 $lines = file($file);
                 foreach ($lines as $number => $line) {
