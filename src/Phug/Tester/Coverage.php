@@ -94,8 +94,6 @@ class Coverage
 
     protected static function getCoverageData()
     {
-        var_dump(array_keys(TestRunnerInterceptor::getLastCoverage()->getData(true)), xdebug_get_code_coverage());
-        exit;
         if (xdebug_code_coverage_started()) {
             $data = xdebug_get_code_coverage();
             xdebug_stop_code_coverage();

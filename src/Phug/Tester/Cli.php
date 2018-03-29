@@ -52,17 +52,17 @@ class Cli
         for ($i = 1; $i < count($arguments); $i++) {
             $arg = $arguments[$i];
 
-            if ($arg === '--pug-text-coverage') {
+            if ($arg === '--pug-coverage-text') {
                 $textCoverage = true;
 
                 continue;
             }
-            if ($arg === '--pug-html-coverage') {
+            if ($arg === '--pug-coverage-html') {
                 $htmlCoverage = $arguments[++$i];
 
                 continue;
             }
-            if (substr($arg, 0, 20) === '--pug-html-coverage=') {
+            if (substr($arg, 0, 20) === '--pug-coverage-html=') {
                 $htmlCoverage = substr($arg, 20);
 
                 continue;

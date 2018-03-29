@@ -21,7 +21,7 @@ Usage
 -----
 
 ```shell
-./phug-tester --pug-coverage-threshold=90 --pug-text-coverage --pug-html-coverage=coverage/pug
+./phug-tester --pug-coverage-threshold=90 --pug-coverage-text --pug-coverage-html=coverage/pug
 ```
 
 ```php
