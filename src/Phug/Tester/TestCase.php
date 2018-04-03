@@ -24,6 +24,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         if ($options) {
             $this->renderer->setOptions($options);
+            $this->renderer->initCompiler();
+            $this->renderer->initAdapter();
         }
 
         return $this->renderer->renderFile($file, $locals);

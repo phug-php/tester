@@ -115,6 +115,8 @@ class Cli
             return $result;
         }
 
+        // @codeCoverageIgnoreStart
         exit($result ? 0 : 1);
+        // @codeCoverageIgnoreEnd
     }
 }

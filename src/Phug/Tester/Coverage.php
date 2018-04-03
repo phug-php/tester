@@ -2,9 +2,12 @@
 
 namespace Phug\Tester;
 
+use Phug\Formatter\ElementInterface;
+use Phug\Parser\Node\DocumentNode;
 use Phug\Parser\NodeInterface;
 use Phug\Renderer;
 use Phug\Util\SourceLocationInterface;
+use SplObjectStorage;
 
 class Coverage
 {
@@ -29,17 +32,37 @@ class Coverage
     protected $lastCoverageData = null;
 
     /**
+     * @var bool
+     */
+    protected $started = false;
+
+    /**
+     * @var bool
+     */
+    protected $coverageStoppingAllowed = true;
+
+    /**
+     * @var array
+     */
+    protected $coverage = [];
+
+    /**
      * @var static
      */
-    protected static $coverage = null;
+    protected static $singleton = null;
 
     public static function get()
     {
-        if (!static::$coverage) {
-            static::$coverage = new static();
+        if (!static::$singleton) {
+            static::$singleton = new static();
         }
 
-        return static::$coverage;
+        return static::$singleton;
+    }
+
+    public static function reset()
+    {
+        static::$singleton = null;
     }
 
     protected static function emptyDirectory($dir)
@@ -80,6 +103,26 @@ class Coverage
         mkdir($dir, 0777, true);
     }
 
+    public function emptyCache()
+    {
+        static::emptyDirectory($this->renderer->getOption('cache_dir'));
+    }
+
+    public function removeCache()
+    {
+        static::removeDirectory($this->renderer->getOption('cache_dir'));
+    }
+
+    public function allowCoverageStopping()
+    {
+        $this->coverageStoppingAllowed = true;
+    }
+
+    public function disallowCoverageStopping()
+    {
+        $this->coverageStoppingAllowed = false;
+    }
+
     protected function getPaths()
     {
         return $this->renderer->getOption('paths');
@@ -91,10 +134,11 @@ class Coverage
         if (!function_exists('xdebug_code_coverage_started')) {
             throw new \BadFunctionCallException('You need to install XDebug to use coverage feature.');
         }
-        // @codeCoverageIgnoreEnd
-        if (!xdebug_code_coverage_started()) {
+        $this->started = !xdebug_code_coverage_started();
+        if ($this->started) {
             xdebug_start_code_coverage();
         }
+        // @codeCoverageIgnoreEnd
     }
 
     public function storeCoverage($data)
@@ -110,16 +154,21 @@ class Coverage
         return $this->lastCoverageData;
     }
 
-    protected static function getCoverageData()
+    protected function getCoverageData()
     {
         if (xdebug_code_coverage_started()) {
             $data = xdebug_get_code_coverage();
-            xdebug_stop_code_coverage();
+            // @codeCoverageIgnoreStart
+            if ($this->started && $this->coverageStoppingAllowed) {
+                $this->started = false;
+                xdebug_stop_code_coverage();
+            }
+            // @codeCoverageIgnoreEnd
 
             return $data;
         }
 
-        return static::get()->getLastCoverageData() ?: TestRunnerInterceptor::getLastCoverage()->getData(true);
+        return static::get()->getLastCoverageData();
     }
 
     private function getLocationPath($path)
@@ -161,6 +210,46 @@ class Coverage
         return is_int(file_put_contents($path, $contents));
     }
 
+    protected function recordLocation(SourceLocationInterface $location = null, $covered = 0)
+    {
+        if ($location) {
+            $locationPath = realpath($location->getPath());
+            $locationLine = $location->getLine() - 1;
+            if (!isset($this->coverage[$locationPath])) {
+                $this->coverage[$locationPath] = [];
+            }
+            if (!isset($this->coverage[$locationPath][$locationLine])) {
+                $this->coverage[$locationPath][$locationLine] = [];
+            }
+            $this->coverage[$locationPath][$locationLine][$location->getOffset() - 1] = $covered;
+        }
+    }
+
+    protected function listNodes(SplObjectStorage $list, ElementInterface $element)
+    {
+        $node = $element->getOriginNode();
+        if ($node && !($node instanceof DocumentNode)) {
+            $list->attach($node);
+            $this->recordLocation($node->getSourceLocation());
+        }
+
+        foreach ($element->getChildren() as $child) {
+            if ($child instanceof ElementInterface) {
+                static::listNodes($list, $child);
+            }
+        }
+    }
+
+    protected function countFileNodes($file)
+    {
+        $document = $this->renderer->getCompiler()->compileFileIntoElement($file);
+        $list = new SplObjectStorage();
+
+        $this->listNodes($list, $document);
+
+        return count($list);
+    }
+
     public function dumpCoverage($output = false, $directory = null)
     {
         if ($directory) {
@@ -177,34 +266,13 @@ class Coverage
         if ($output) {
             echo "\n| Coverage:\n|\n";
         }
-        $coverage = [];
         $formatter = $this->renderer->getCompiler()->getFormatter();
         $cache = realpath($this->renderer->getOption('cache_dir')).DIRECTORY_SEPARATOR;
         $len = strlen($cache);
+        $coveredNodes = [];
+        $counts = [];
 
-        $recordLocation = function (SourceLocationInterface $location = null, $covered = 0) use (&$coverage) {
-            if ($location) {
-                $locationPath = realpath($location->getPath());
-                $locationLine = $location->getLine() - 1;
-                if (!isset($coverage[$locationPath])) {
-                    $coverage[$locationPath] = [];
-                }
-                if (!isset($coverage[$locationPath][$locationLine])) {
-                    $coverage[$locationPath][$locationLine] = [];
-                }
-                $coverage[$locationPath][$locationLine][$location->getOffset() - 1] = $covered;
-            }
-        };
-
-        $nodes = new \SplObjectStorage();
-        $coveredNodes = new \SplObjectStorage();
-        for ($debugId = 0; $formatter->debugIdExists($debugId); $debugId++) {
-            $node = $formatter->getNodeFromDebugId($debugId);
-            $nodes->attach($node);
-            $recordLocation($node->getSourceLocation());
-        }
-
-        foreach (static::getCoverageData() as $file => $results) {
+        foreach ($this->getCoverageData() as $file => $results) {
             if (substr(realpath($file), 0, $len) === $cache) {
                 $lines = file($file);
                 foreach ($lines as $number => $line) {
@@ -216,10 +284,19 @@ class Coverage
                                 $node instanceof NodeInterface;
                                 $node = $node->getOuterNode() ?: $node->getParent()
                             ) {
-                                if (isset($nodes[$node])) {
-                                    $coveredNodes->attach($node);
+                                if (!($node instanceof DocumentNode) && ($location = $node->getSourceLocation())) {
+                                    $locationPath = $location->getPath();
+                                    if (!isset($counts[$locationPath])) {
+                                        $counts[$locationPath] = $this->countFileNodes($locationPath);
+                                    }
+                                    if (!isset($coveredNodes[$locationPath])) {
+                                        $coveredNodes[$locationPath] = new SplObjectStorage();
+                                    }
+                                    if (!isset($coveredNodes[$locationPath][$node])) {
+                                        $coveredNodes[$locationPath]->attach($node);
+                                    }
+                                    $this->recordLocation($location, 1);
                                 }
-                                $recordLocation($node->getSourceLocation(), 1);
                             }
                         }
                     }
@@ -232,8 +309,9 @@ class Coverage
             foreach ($this->renderer->scanDirectory($path) as $file) {
                 $coveredState = 0;
                 $file = realpath($file);
-                $coverage = isset($coverage[$file]) ? $coverage[$file] : [];
-                $path = $this->getLocationPath($file);
+                $fileNodesCount = isset($counts[$file]) ? $counts[$file] : $this->countFileNodes($file);
+                $fileCoverage = isset($this->coverage[$file]) ? $this->coverage[$file] : [];
+                $filePath = $this->getLocationPath($file);
                 $html = '';
                 $lines = file($file);
                 $count = count($lines);
@@ -243,7 +321,7 @@ class Coverage
                     $html .= '<div><a style="color: gray;" id="L'.$id.'" href="#L'.$id.'">'.
                         str_pad($id, $pad, ' ', STR_PAD_LEFT).
                         ' &nbsp;</a>';
-                    $lineCoverage = isset($coverage[$number]) ? $coverage[$number] : [];
+                    $lineCoverage = isset($fileCoverage[$number]) ? $fileCoverage[$number] : [];
                     $currentOffset = 0;
                     foreach ($lineCoverage as $offset => $covered) {
                         if ($offset > $currentOffset && $coveredState !== $covered) {
@@ -266,13 +344,16 @@ class Coverage
                 if ($directory) {
                     $html = $this->getTemplateFile('file.html', [
                         'cssPath'  => 'css',
-                        'path'     => $path,
+                        'path'     => $filePath,
                         'coverage' => $html,
                     ]);
 
-                    $this->writeFile($directory.DIRECTORY_SEPARATOR.$path.'.html', $html);
+                    $this->writeFile($directory.DIRECTORY_SEPARATOR.$filePath.'.html', $html);
                 }
-                $files[$path] = [count($coveredNodes), count($nodes)];
+                $files[$filePath] = [
+                    isset($coveredNodes[$file]) ? count($coveredNodes[$file]) : 0,
+                    $fileNodesCount
+                ];
             }
         }
         $pad = max(array_map(function ($path) {
@@ -314,10 +395,10 @@ class Coverage
     /**
      * @return Renderer
      */
-    public function createRenderer($renderer, $extensions, $paths)
+    public function createRenderer($renderer, $extensions, $paths, $cacheDirectory = null)
     {
         if (is_string($renderer)) {
-            $cache = sys_get_temp_dir().DIRECTORY_SEPARATOR.'pug-cache-'.mt_rand(0, 9999999);
+            $cache = $cacheDirectory ?: sys_get_temp_dir().DIRECTORY_SEPARATOR.'pug-cache-'.mt_rand(0, 9999999);
             static::addEmptyDirectory($cache);
             $renderer = new $renderer([
                 'extensions' => $extensions,
