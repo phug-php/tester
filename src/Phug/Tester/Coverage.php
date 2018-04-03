@@ -24,6 +24,11 @@ class Coverage
     protected $lastCoverageRate = 0;
 
     /**
+     * @var array
+     */
+    protected $lastCoverageData = null;
+
+    /**
      * @var static
      */
     protected static $coverage = null;
@@ -92,6 +97,19 @@ class Coverage
         }
     }
 
+    public function storeCoverage($data)
+    {
+        $this->lastCoverageData = $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLastCoverageData()
+    {
+        return $this->lastCoverageData;
+    }
+
     protected static function getCoverageData()
     {
         if (xdebug_code_coverage_started()) {
@@ -101,7 +119,7 @@ class Coverage
             return $data;
         }
 
-        return TestRunnerInterceptor::getLastCoverage()->getData(true);
+        return static::get()->getLastCoverageData() ?: TestRunnerInterceptor::getLastCoverage()->getData(true);
     }
 
     private function getLocationPath($path)

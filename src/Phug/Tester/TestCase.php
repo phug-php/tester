@@ -64,4 +64,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             $this->getPaths()
         );
     }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+        Coverage::get()->storeCoverage(xdebug_get_code_coverage());
+    }
 }

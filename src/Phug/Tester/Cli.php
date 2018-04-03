@@ -5,6 +5,21 @@ namespace Phug\Tester;
 class Cli
 {
     /**
+     * @const string
+     */
+    const PUG_COVERAGE_TEXT = '--pug-coverage-text';
+
+    /**
+     * @const string
+     */
+    const PUG_COVERAGE_HTML = '--pug-coverage-html';
+
+    /**
+     * @const string
+     */
+    const PUG_COVERAGE_THRESHOLD = '--pug-coverage-threshold';
+
+    /**
      * @var string
      */
     private $vendor;
@@ -13,15 +28,6 @@ class Cli
      * @var PhpunitCommand
      */
     private $command;
-
-    protected static $coverageOptions = [
-        '--coverage-clover' => false,
-        '--coverage-crap4j' => false,
-        '--coverage-html'   => false,
-        '--coverage-php'    => false,
-        '--coverage-text'   => true,
-        '--coverage-xml'    => false,
-    ];
 
     public function __construct($vendor)
     {
@@ -49,31 +55,35 @@ class Cli
         $textCoverage = false;
         $htmlCoverage = null;
         $coverageThreshold = null;
+        $htmlValueArg = static::PUG_COVERAGE_HTML.'=';
+        $htmlValueArgLength = strlen($htmlValueArg);
+        $thresholdValueArg = static::PUG_COVERAGE_THRESHOLD.'=';
+        $thresholdValueArgLength = strlen($thresholdValueArg);
         for ($i = 1; $i < count($arguments); $i++) {
             $arg = $arguments[$i];
 
-            if ($arg === '--pug-coverage-text') {
+            if ($arg === static::PUG_COVERAGE_TEXT) {
                 $textCoverage = true;
 
                 continue;
             }
-            if ($arg === '--pug-coverage-html') {
+            if ($arg === static::PUG_COVERAGE_HTML) {
                 $htmlCoverage = $arguments[++$i];
 
                 continue;
             }
-            if (substr($arg, 0, 20) === '--pug-coverage-html=') {
-                $htmlCoverage = substr($arg, 20);
+            if (substr($arg, 0, $htmlValueArgLength) === $htmlValueArg) {
+                $htmlCoverage = substr($arg, $htmlValueArgLength);
 
                 continue;
             }
-            if ($arg === '--pug-coverage-threshold') {
+            if ($arg === static::PUG_COVERAGE_THRESHOLD) {
                 $coverageThreshold = $arguments[++$i];
 
                 continue;
             }
-            if (substr($arg, 0, 25) === '--pug-coverage-threshold=') {
-                $coverageThreshold = substr($arg, 25);
+            if (substr($arg, 0, $thresholdValueArgLength) === $thresholdValueArg) {
+                $coverageThreshold = substr($arg, $thresholdValueArgLength);
 
                 continue;
             }
