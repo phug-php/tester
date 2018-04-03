@@ -41,6 +41,9 @@ class TestCaseTest extends AbstractTesterCaseTest
      * @covers ::tearDown
      * @covers \Phug\Tester\Cli::<public>
      * @covers \Phug\Tester\Coverage::<public>
+     * @covers \Phug\Tester\Coverage::recordLocation
+     * @covers \Phug\Tester\Coverage::listNodes
+     * @covers \Phug\Tester\Coverage::countFileNodes
      * @covers \Phug\Tester\Coverage::getTemplateFile
      * @covers \Phug\Tester\Coverage::writeFile
      * @covers \Phug\Tester\Coverage::storeCoverage

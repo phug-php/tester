@@ -24,14 +24,6 @@ class CliTest extends AbstractTesterCaseTest
     }
 
     /**
-     * @group fake
-     */
-    public function testPhpUnit()
-    {
-        self::assertSame(1, 1);
-    }
-
-    /**
      * @throws \Phug\RendererException
      * @covers ::__construct
      * @covers ::runPhpunit
