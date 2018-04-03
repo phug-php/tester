@@ -279,11 +279,9 @@ class Coverage
                     if (isset($results[$number]) && preg_match('/^\/\/ PUG_DEBUG:(\d+)$/', $line, $match)) {
                         $debugId = intval($match[1]);
                         if ($formatter->debugIdExists($debugId)) {
-                            for (
-                                $node = $formatter->getNodeFromDebugId($debugId);
+                            for ($node = $formatter->getNodeFromDebugId($debugId);
                                 $node instanceof NodeInterface;
-                                $node = $node->getOuterNode() ?: $node->getParent()
-                            ) {
+                                $node = $node->getOuterNode() ?: $node->getParent()) {
                                 if (!($node instanceof DocumentNode) && ($location = $node->getSourceLocation())) {
                                     $locationPath = $location->getPath();
                                     if (!isset($counts[$locationPath])) {
