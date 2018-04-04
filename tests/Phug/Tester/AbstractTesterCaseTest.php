@@ -35,7 +35,9 @@ abstract class AbstractTesterCaseTest extends TestCase
     protected static function removeDirectory($dir)
     {
         static::emptyDirectory($dir);
-        rmdir($dir);
+        if (file_exists($dir)) {
+            rmdir($dir);
+        }
     }
 
     protected static function addEmptyDirectory($dir)

@@ -87,11 +87,11 @@ class Coverage
 
     public static function getStatus($covered, $total)
     {
-        if ($covered / $total >= 0.9) {
+        if ($covered / max(1, $total) >= 0.9) {
             return 'success';
         }
 
-        if ($covered / $total >= 0.5) {
+        if ($covered / max(1, $total) >= 0.5) {
             return 'warning';
         }
 
@@ -146,6 +146,14 @@ class Coverage
         static::removeDirectory($this->renderer->getOption('cache_dir'));
     }
 
+    /**
+     * @return bool
+     */
+    public function isCoverageAllowedToStop()
+    {
+        return $this->coverageStoppingAllowed;
+    }
+
     public function allowCoverageStopping()
     {
         $this->coverageStoppingAllowed = true;
@@ -192,7 +200,7 @@ class Coverage
         if (xdebug_code_coverage_started()) {
             $data = xdebug_get_code_coverage();
             // @codeCoverageIgnoreStart
-            if ($this->started && $this->coverageStoppingAllowed) {
+            if ($this->started && $this->isCoverageAllowedToStop()) {
                 $this->started = false;
                 xdebug_stop_code_coverage();
             }
@@ -201,7 +209,9 @@ class Coverage
             return $data;
         }
 
+        // @codeCoverageIgnoreStart
         return static::get()->getLastCoverageData();
+        // @codeCoverageIgnoreEnd
     }
 
     private function getLocationPath($path)
@@ -220,7 +230,9 @@ class Coverage
             }
         }
 
+        // @codeCoverageIgnoreStart
         return $path;
+        // @codeCoverageIgnoreEnd
     }
 
     protected function getTemplateFile($file, $vars)

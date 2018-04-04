@@ -102,6 +102,49 @@ class CliTest extends AbstractTesterCaseTest
 
     /**
      * @throws \Phug\RendererException
+     * @covers ::exec
+     */
+    public function testHtmlCoverage()
+    {
+        $base = __DIR__.'/../../..';
+        $cli = new Cli("$base/vendor");
+        $this->renderFile('loop.pug');
+        $directory = sys_get_temp_dir().'/pug-coverage-'.mt_rand(0, 999999);
+
+        static::removeDirectory($directory);
+        $params = ["$base/phug-tester", '-c', "$base/example", "--pug-coverage-html=$directory"];
+        ob_start();
+        $run = $cli->run($params, false);
+        ob_end_clean();
+        self::assertFileExists("$directory/loop.pug.html");
+        self::assertTrue($run);
+
+        static::removeDirectory($directory);
+        $params = ["$base/phug-tester", '-c', "$base/example", '--pug-coverage-html', $directory];
+        ob_start();
+        $run = $cli->run($params, false);
+        ob_end_clean();
+        self::assertFileExists("$directory/loop.pug.html");
+        self::assertTrue($run);
+    }
+
+    /**
+     * @throws \Phug\RendererException
+     * @covers ::exec
+     */
+    public function testUnitTestsFailure()
+    {
+        $base = __DIR__.'/../../..';
+        $cli = new Cli("$base/vendor");
+        $params = ["$base/phug-tester", '-c', "$base/tests/failure", '--pug-coverage-text'];
+        ob_start();
+        $run = $cli->run($params, false);
+        ob_end_clean();
+        self::assertFalse($run);
+    }
+
+    /**
+     * @throws \Phug\RendererException
      * @covers ::__construct
      * @covers ::runPhpunit
      * @covers ::exec

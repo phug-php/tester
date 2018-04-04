@@ -46,6 +46,7 @@ class TestCaseTest extends AbstractTesterCaseTest
      * @covers \Phug\Tester\Coverage::countFileNodes
      * @covers \Phug\Tester\Coverage::getTemplateFile
      * @covers \Phug\Tester\Coverage::writeFile
+     * @covers \Phug\Tester\Coverage::writeSummaries
      * @covers \Phug\Tester\Coverage::storeCoverage
      * @covers \Phug\Tester\Coverage::getCoverageData
      * @covers \Phug\Tester\Coverage::getLastCoverageData
@@ -88,6 +89,13 @@ class TestCaseTest extends AbstractTesterCaseTest
         $contents = file_get_contents($file);
         self::assertRegExp('/<span\s+class="uncovered chunk">\s*Foo\s*<\/span>/', $contents);
         self::assertContains('index.pug', $contents);
+
+        $file = "$directory/directory/index.html";
+        self::assertFileExists($file);
+
+        $contents = file_get_contents($file);
+        self::assertContains('a.pug', $contents);
+        self::assertContains('b.pug', $contents);
 
         self::removeDirectory($directory);
 
