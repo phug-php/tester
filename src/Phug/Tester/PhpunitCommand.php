@@ -2,9 +2,12 @@
 
 namespace Phug\Tester;
 
-use PHPUnit\Framework\Test;
 use PHPUnit\TextUI\Command;
 
 class PhpunitCommand extends Command
 {
+    protected function createRunner()
+    {
+        return new TestRunnerInterceptor($this->arguments['loader']);
+    }
 }

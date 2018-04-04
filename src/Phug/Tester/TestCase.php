@@ -24,6 +24,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         if ($options) {
             $this->renderer->setOptions($options);
+            $this->renderer->initCompiler();
+            $this->renderer->initAdapter();
         }
 
         return $this->renderer->renderFile($file, $locals);
@@ -63,5 +65,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             $this->getExtensions(),
             $this->getPaths()
         );
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+        Coverage::get()->storeCoverage(xdebug_get_code_coverage());
     }
 }
