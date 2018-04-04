@@ -54,6 +54,18 @@ The `Phug\Tester\TestCase` is needed to use Pug utils such as
 `renderFile` or if you need to get both PHP and Pug coverage in
 a single command.
 
+As an alternative if you extend an other class, you can use
+the trait:
+
+```php
+<?php
+
+class MyTemplatesTest extends MyFramerowk\TestCase
+{
+    use Phug\Tester\TestCaseTrait;
+}
+```
+
 Options
 -------
 

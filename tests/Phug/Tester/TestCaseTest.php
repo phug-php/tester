@@ -5,7 +5,7 @@ namespace Phug\Test\Tester;
 use Phug\Tester\Coverage;
 
 /**
- * @coversDefaultClass \Phug\Tester\TestCase
+ * @coversDefaultClass \Phug\Tester\TestCaseTrait
  */
 class TestCaseTest extends AbstractTesterCaseTest
 {
