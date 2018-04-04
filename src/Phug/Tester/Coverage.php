@@ -11,6 +11,26 @@ use SplObjectStorage;
 
 class Coverage
 {
+    const VERSION = '0.1.0';
+
+    /**
+     * @var array
+     */
+    protected static $assets = [
+        'css/style.css',
+        'css/bootstrap.min.css',
+        'fonts/glyphicons-halflings-regular.eot',
+        'fonts/glyphicons-halflings-regular.svg',
+        'fonts/glyphicons-halflings-regular.ttf',
+        'fonts/glyphicons-halflings-regular.woff',
+        'fonts/glyphicons-halflings-regular.woff2',
+    ];
+
+    /**
+     * @var static
+     */
+    protected static $singleton = null;
+
     /**
      * @var Renderer
      */
@@ -47,9 +67,9 @@ class Coverage
     protected $coverage = [];
 
     /**
-     * @var static
+     * @var array
      */
-    protected static $singleton = null;
+    protected $tree = [];
 
     public static function get()
     {
@@ -63,6 +83,19 @@ class Coverage
     public static function reset()
     {
         static::$singleton = null;
+    }
+
+    public static function getStatus($covered, $total)
+    {
+        if ($covered / $total >= 0.9) {
+            return 'success';
+        }
+
+        if ($covered / $total >= 0.5) {
+            return 'warning';
+        }
+
+        return 'danger';
     }
 
     protected static function emptyDirectory($dir)
@@ -250,18 +283,39 @@ class Coverage
         return count($list);
     }
 
+    protected function writeSummaries($directory, $tree = null, $path = '')
+    {
+        $tree = $tree ?: $this->tree;
+        foreach ($tree as $subPath => list($coveredNodesCount, $fileNodesCount, $children)) {
+            if ($children !== []) {
+                $path .= "/$subPath";
+                $html = $this->getTemplateFile('dashboard.html', [
+                    'path'              => $path,
+                    'coveredNodesCount' => $coveredNodesCount,
+                    'fileNodesCount'    => $fileNodesCount,
+                    'children'          => $children,
+                    'percentage'        => number_format(100 * $coveredNodesCount / $fileNodesCount, 2),
+                    'getStatus'         => [static::class, 'getStatus'],
+                    'status'            => static::getStatus($coveredNodesCount, $fileNodesCount),
+                    'phugTesterVersion' => static::VERSION,
+                ]);
+
+                $this->writeFile($directory.$path.'/index.html', $html);
+                $this->writeSummaries($directory, $children, $path);
+            }
+        }
+    }
+
     public function dumpCoverage($output = false, $directory = null)
     {
         if ($directory) {
             static::addEmptyDirectory($directory);
-            $this->writeFile(
-                $directory.'/css/style.css',
-                file_get_contents(__DIR__.'/../../template/css/style.css')
-            );
-            $this->writeFile(
-                $directory.'/css/bootstrap.min.css',
-                file_get_contents(__DIR__.'/../../template/css/bootstrap.min.css')
-            );
+            foreach (static::$assets as $asset) {
+                $this->writeFile(
+                    "$directory/$asset",
+                    file_get_contents(__DIR__."/../../template/$asset")
+                );
+            }
         }
         if ($output) {
             echo "\n| Coverage:\n|\n";
@@ -303,6 +357,7 @@ class Coverage
         }
 
         $files = [];
+        $this->tree = [];
         foreach ($this->getPaths() as $path) {
             foreach ($this->renderer->scanDirectory($path) as $file) {
                 $coveredState = 0;
@@ -341,18 +396,29 @@ class Coverage
                 }
                 if ($directory) {
                     $html = $this->getTemplateFile('file.html', [
-                        'cssPath'  => 'css',
-                        'path'     => $filePath,
-                        'coverage' => $html,
+                        'path'              => $filePath,
+                        'coverage'          => $html,
+                        'phugTesterVersion' => static::VERSION,
                     ]);
 
                     $this->writeFile($directory.DIRECTORY_SEPARATOR.$filePath.'.html', $html);
                 }
-                $files[$filePath] = [
-                    isset($coveredNodes[$file]) ? count($coveredNodes[$file]) : 0,
-                    $fileNodesCount
-                ];
+                $coveredNodesCount = isset($coveredNodes[$file]) ? count($coveredNodes[$file]) : 0;
+                $files[$filePath] = [$coveredNodesCount, $fileNodesCount];
+                $base = &$this->tree;
+                foreach (preg_split('/[\\\\\\/]+/', "/$filePath") as $subPath) {
+                    if (!isset($base[$subPath])) {
+                        $base[$subPath] = [0, 0, []];
+                    }
+                    $base = &$base[$subPath];
+                    $base[0] += $coveredNodesCount;
+                    $base[1] += $fileNodesCount;
+                    $base = &$base[2];
+                }
             }
+        }
+        if ($directory) {
+            $this->writeSummaries($directory);
         }
         $pad = max(array_map(function ($path) {
             return strlen($path);

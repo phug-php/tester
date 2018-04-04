@@ -8,7 +8,7 @@ abstract class AbstractTesterCaseTest extends TestCase
 {
     protected function getPaths($parent = false)
     {
-        return $parent ? parent::getPaths() : [__DIR__.'/../../../tests/views'];
+        return $parent ? parent::getPaths() : [__DIR__.'/../../../example/views'];
     }
 
     protected static function emptyDirectory($dir)

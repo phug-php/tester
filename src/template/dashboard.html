@@ -1,4 +1,12 @@
-<!doctype html>
+<?php
+
+$subPaths = preg_split('/[\\\\\\/]+/', "/$path");
+$file = array_pop($subPaths);
+$up = count($subPaths) - (strlen($file) ? 0 : 1);
+$baseDirectory = str_repeat('../', $up);
+$cssPath = $baseDirectory.'css';
+
+?><!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,204 +18,72 @@
     <link rel="stylesheet" href="<?=$cssPath?>/style.css">
 </head>
 <body>
-<header>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <ol class="breadcrumb">
-                    <li><a href="../index.html">C:\Users\bastien.miclo\Perso\phug-php\watcher\src</a></li>
-                    <li class="active">Phug</li>
-                    <li>(<a href="dashboard.html">Dashboard</a>)</li>
-
-                </ol>
+<?php
+if ($up) {
+    ?>
+    <header>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <ol class="breadcrumb">
+                        <?php
+                        foreach ($subPaths as $index => $subPath) {
+                            $up = count($subPaths) - $index;
+                            ?>
+                            <li><a href="<?=str_repeat('../', $up)?>index.html"><?=$subPath ?: '(root)'?></a></li>
+                            <?php
+                        }
+                        ?>
+                        <li class="active"><?=$file?></li>
+                    </ol>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
+    <?php
+}
+?>
 <div class="container">
     <table class="table table-bordered">
         <thead>
         <tr>
             <td>&nbsp;</td>
-            <td colspan="9"><div align="center"><strong>Code Coverage</strong></div></td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td colspan="3"><div align="center"><strong>Lines</strong></div></td>
-            <td colspan="3"><div align="center"><strong>Functions and Methods</strong></div></td>
-            <td colspan="3"><div align="center"><strong>Classes and Traits</strong></div></td>
+            <td colspan="3"><div align="center"><strong>Code Coverage (covered nodes)</strong></div></td>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td class="success">Total</td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
+            <td class="<?=$status?>">Total</td>
+            <td class="<?=$status?> big">       <div class="progress">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<?=$percentage?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$percentage?>%">
+                    <span class="sr-only"><?=$percentage?>% covered (<?=$status?>)</span>
                 </div>
             </div>
             </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">172&nbsp;/&nbsp;172</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">28&nbsp;/&nbsp;28</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">5&nbsp;/&nbsp;5</div></td>
+            <td class="<?=$status?> small"><div align="right"><?=$percentage?>%</div></td>
+            <td class="<?=$status?> small"><div align="right"><?=$coveredNodesCount?>&nbsp;/&nbsp;<?=$fileNodesCount?></div></td>
         </tr>
-
-        <tr>
-            <td class="success"><span class="glyphicon glyphicon-folder-open"></span> <a href="Watcher/index.html">Watcher</a></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
+        <?php
+        foreach ($children as $filePath => list($coveredNodesCount, $fileNodesCount, $children)) {
+            $fullPath = ltrim("$path/$filePath", '/');
+            $status = $getStatus($coveredNodesCount, $fileNodesCount);
+            $percentage = number_format(100 * $coveredNodesCount / $fileNodesCount, 2);
+            $isFile = ($children === []);
+            ?>
+            <tr>
+                <td class="<?=$status?>"><span class="glyphicon glyphicon-<?=$isFile ? 'file' : 'folder-open'?>"></span> <a href="<?=$baseDirectory.$fullPath.($isFile ? '' : '/index')?>.html"><?=$filePath?></a></td>
+                <td class="<?=$status?> big">       <div class="progress">
+                    <div class="progress-bar progress-bar-<?=$status?>" role="progressbar" aria-valuenow="<?=$percentage?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$percentage?>%">
+                        <span class="sr-only"><?=$percentage?>% covered (<?=$status?>)</span>
+                    </div>
                 </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">54&nbsp;/&nbsp;54</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">4&nbsp;/&nbsp;4</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">1&nbsp;/&nbsp;1</div></td>
-        </tr>
-
-        <tr>
-            <td class="success"><span class="glyphicon glyphicon-file"></span> <a href="BrowserReloadServer.php.html">BrowserReloadServer.php</a></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">13&nbsp;/&nbsp;13</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">2&nbsp;/&nbsp;2</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">1&nbsp;/&nbsp;1</div></td>
-        </tr>
-
-        <tr>
-            <td class="success"><span class="glyphicon glyphicon-file"></span> <a href="PhugDevServer.php.html">PhugDevServer.php</a></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">21&nbsp;/&nbsp;21</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">5&nbsp;/&nbsp;5</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">1&nbsp;/&nbsp;1</div></td>
-        </tr>
-
-        <tr>
-            <td class="success"><span class="glyphicon glyphicon-file"></span> <a href="Watcher.php.html">Watcher.php</a></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">28&nbsp;/&nbsp;28</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">8&nbsp;/&nbsp;8</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">1&nbsp;/&nbsp;1</div></td>
-        </tr>
-
-        <tr>
-            <td class="success"><span class="glyphicon glyphicon-file"></span> <a href="WatcherExtension.php.html">WatcherExtension.php</a></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">56&nbsp;/&nbsp;56</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">9&nbsp;/&nbsp;9</div></td>
-            <td class="success big">       <div class="progress">
-                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100.00" aria-valuemin="0" aria-valuemax="100" style="width: 100.00%">
-                    <span class="sr-only">100.00% covered (success)</span>
-                </div>
-            </div>
-            </td>
-            <td class="success small"><div align="right">100.00%</div></td>
-            <td class="success small"><div align="right">1&nbsp;/&nbsp;1</div></td>
-        </tr>
-
-
+                </td>
+                <td class="<?=$status?> small"><div align="right"><?=$percentage?>%</div></td>
+                <td class="<?=$status?> small"><div align="right"><?=$coveredNodesCount?>&nbsp;/&nbsp;<?=$fileNodesCount?></div></td>
+            </tr>
+            <?php
+        }
+        ?>
         </tbody>
     </table>
     <footer>
@@ -219,7 +95,7 @@
             <span class="success"><strong>High</strong>: 90% to 100%</span>
         </p>
         <p>
-            <small>Generated by <a href="https://github.com/phug-php/tester" target="_top">phug/tester <?=$phugTesterVersion?></a> using <a href="https://secure.php.net/" target="_top">PHP <?=PHP_VERSION?></a> with <a href="https://xdebug.org/">Xdebug <?=xde</a> and <a href="https://phpunit.de/">PHPUnit 5.7.27</a> at Mon Mar 26 12:53:48 UTC 2018.</small>
+            <small>Generated by <a href="https://github.com/phug-php/tester" target="_top">phug/tester <?=$phugTesterVersion?></a> using <a href="https://secure.php.net/" target="_top">PHP <?=PHP_VERSION?></a> with <a href="https://xdebug.org/">Xdebug <?=phpversion('xdebug')?></a> and <a href="https://phpunit.de/">PHPUnit <?=\PHPUnit\Runner\Version::id()?></a> at <?=date('r')?>.</small>
         </p>
     </footer>
 </div>

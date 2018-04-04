@@ -23,7 +23,7 @@
         "php": ">=7.0.0",
         "ext-xdebug": "*",
         "phug/renderer": "^0.4.0",
-        "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0"
+        "phpunit/phpunit": "^5.7 || ^6.0"
     },
     "require-dev": {
         "phug/dev-tool": "^0.1.2"
