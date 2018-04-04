@@ -29,17 +29,17 @@ class Cli
      */
     private $command;
 
-    public function __construct($vendor)
+    public function __construct(string $vendor)
     {
         $this->vendor = $vendor;
     }
 
-    public function getVendorScript($script)
+    public function getVendorScript(string $script) : string
     {
         return realpath($this->vendor."/$script");
     }
 
-    protected function runPhpunit($arguments)
+    protected function runPhpunit(array $arguments) : bool
     {
         if (!$this->command) {
             $this->command = new PhpunitCommand();
@@ -48,7 +48,7 @@ class Cli
         return !$this->command->run($arguments, false);
     }
 
-    protected function exec($arguments)
+    protected function exec(array $arguments) : bool
     {
         $phpunit = $this->getVendorScript('phpunit/phpunit/phpunit');
         $phpunitArguments = [$phpunit];
@@ -107,7 +107,7 @@ class Cli
         return $coverage->isThresholdReached();
     }
 
-    public function run($arguments, $exit = true)
+    public function run(array $arguments, $exit = true) : bool
     {
         $result = $this->exec($arguments);
 
