@@ -16,9 +16,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * @param array      $locals
      * @param array|null $options
      *
-     * @return string
-     *
      * @throws \Phug\RendererException
+     *
+     * @return string
      */
     protected function renderFile($file, $locals = [], $options = null)
     {

@@ -71,7 +71,7 @@ class Coverage
      */
     protected $tree = [];
 
-    public static function get() : Coverage
+    public static function get() : self
     {
         if (!static::$singleton) {
             static::$singleton = new static();
