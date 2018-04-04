@@ -64,40 +64,39 @@ class CliTest extends AbstractTesterCaseTest
     public function testThreshold()
     {
         $base = __DIR__.'/../../..';
-        $vendor = "$base/vendor";
-        $cli = new Cli($vendor);
+        $cli = new Cli("$base/vendor");
         $this->renderFile('loop.pug');
 
-        $params = ["$base/phug-tester", '-c', "$vendor/phug/dev-tool/config", '--pug-coverage-threshold=20'];
+        $params = ["$base/phug-tester", '-c', "$base/example", '--pug-coverage-threshold=10'];
         ob_start();
         $run = $cli->run($params, false);
         $output = ob_get_contents();
         ob_end_clean();
-        self::assertContains('Expected threshold 20% reached.', $output);
+        self::assertContains('Expected threshold 10% reached.', $output);
         self::assertTrue($run);
 
-        $params = ["$base/phug-tester", '-c', "$vendor/phug/dev-tool/config", '--pug-coverage-threshold=30'];
+        $params = ["$base/phug-tester", '-c', "$base/example", '--pug-coverage-threshold=20'];
         ob_start();
         $run = $cli->run($params, false);
         $output = ob_get_contents();
         ob_end_clean();
-        self::assertContains('Expected threshold 30% not reached.', $output);
+        self::assertContains('Expected threshold 20% not reached.', $output);
         self::assertFalse($run);
 
-        $params = ["$base/phug-tester", '-c', "$vendor/phug/dev-tool/config", '--pug-coverage-threshold', '20'];
+        $params = ["$base/phug-tester", '-c', "$base/example", '--pug-coverage-threshold', '10'];
         ob_start();
         $run = $cli->run($params, false);
         $output = ob_get_contents();
         ob_end_clean();
-        self::assertContains('Expected threshold 20% reached.', $output);
+        self::assertContains('Expected threshold 10% reached.', $output);
         self::assertTrue($run);
 
-        $params = ["$base/phug-tester", '-c', "$vendor/phug/dev-tool/config", '--pug-coverage-threshold', '30'];
+        $params = ["$base/phug-tester", '-c', "$base/example", '--pug-coverage-threshold', '20'];
         ob_start();
         $run = $cli->run($params, false);
         $output = ob_get_contents();
         ob_end_clean();
-        self::assertContains('Expected threshold 30% not reached.', $output);
+        self::assertContains('Expected threshold 20% not reached.', $output);
         self::assertFalse($run);
     }
 
