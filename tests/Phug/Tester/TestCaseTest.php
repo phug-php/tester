@@ -103,23 +103,13 @@ class TestCaseTest extends AbstractTesterCaseTest
         self::removeDirectory($directory);
 
         $cache = sys_get_temp_dir().'/pug-cache-'.mt_rand(0, 999999);
-        $coverage->createRenderer(
-            $this->getRenderer(),
-            $this->getExtensions(),
-            $this->getPaths(),
-            $cache
-        );
+        $coverage->createRenderer($this->getRenderer(), $this->getRendererOptions($cache));
         touch("$cache/foo");
         mkdir("$cache/bar");
         touch("$cache/bar/foo");
         self::assertFileExists("$cache/foo");
         self::assertFileExists("$cache/bar/foo");
-        $coverage->createRenderer(
-            $this->getRenderer(),
-            $this->getExtensions(),
-            $this->getPaths(),
-            $cache
-        );
+        $coverage->createRenderer($this->getRenderer(), $this->getRendererOptions($cache));
         self::assertFileNotExists("$cache/foo");
         self::assertFileNotExists("$cache/bar/foo");
         touch("$cache/foo");
