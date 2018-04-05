@@ -42,7 +42,7 @@ trait TestCaseTrait
     /**
      * @return array
      */
-    protected function getExtensions() : array
+    protected function getExtensions()
     {
         return ['', '.pug', '.jade'];
     }
@@ -56,9 +56,11 @@ trait TestCaseTrait
     }
 
     /**
+     * @param string|null $cacheDirectory
+     *
      * @return array
      */
-    protected function getRendererOptions(string $cacheDirectory = null) : array
+    protected function getRendererOptions($cacheDirectory = null)
     {
         return [
             'extensions' => (array) $this->getExtensions(),
