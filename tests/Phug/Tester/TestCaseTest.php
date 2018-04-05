@@ -38,7 +38,10 @@ class TestCaseTest extends AbstractTesterCaseTest
      * @covers ::getExtensions
      * @covers ::getRenderer
      * @covers ::setUp
+     * @covers ::getRendererOptions
+     * @covers ::setUpCoverage
      * @covers ::tearDown
+     * @covers ::tearDownCoverage
      * @covers \Phug\Tester\Cli::<public>
      * @covers \Phug\Tester\Coverage::<public>
      * @covers \Phug\Tester\Coverage::recordLocation

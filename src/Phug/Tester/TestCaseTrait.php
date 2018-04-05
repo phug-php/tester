@@ -20,7 +20,7 @@ trait TestCaseTrait
      *
      * @return string
      */
-    protected function renderFile($file, $locals = [], $options = null)
+    protected function renderFile($file, $locals = [], $options = null) : string
     {
         if ($options) {
             $this->renderer->setOptions($options);
@@ -34,7 +34,7 @@ trait TestCaseTrait
     /**
      * @return array
      */
-    protected function getPaths()
+    protected function getPaths() : array
     {
         return ['views'];
     }
@@ -42,7 +42,7 @@ trait TestCaseTrait
     /**
      * @return array
      */
-    protected function getExtensions()
+    protected function getExtensions() : array
     {
         return ['', '.pug', '.jade'];
     }
@@ -56,20 +56,47 @@ trait TestCaseTrait
     }
 
     /**
+     * @return array
+     */
+    protected function getRendererOptions(string $cacheDirectory = null) : array
+    {
+        return [
+            'extensions' => $this->getExtensions(),
+            'paths'      => $this->getPaths(),
+            'debug'      => true,
+            'cache_dir'  => $cacheDirectory ?: sys_get_temp_dir().'/pug-cache-'.mt_rand(0, 9999999),
+        ];
+    }
+
+    /**
+     * @throws \Phug\RendererException
+     */
+    protected function setUpCoverage()
+    {
+        $this->renderer = Coverage::get()->createRenderer($this->getRenderer(), $this->getRendererOptions());
+    }
+
+    protected function tearDownCoverage()
+    {
+        Coverage::get()->storeCoverage(xdebug_get_code_coverage());
+    }
+
+    /**
      * @throws \Phug\RendererException
      */
     protected function setUp()
     {
-        $this->renderer = Coverage::get()->createRenderer(
-            $this->getRenderer(),
-            $this->getExtensions(),
-            $this->getPaths()
-        );
+        if (method_exists(parent::class, 'setUp')) {
+            parent::setUp();
+        }
+        $this->setUpCoverage();
     }
 
     protected function tearDown()
     {
-        parent::tearDown();
-        Coverage::get()->storeCoverage(xdebug_get_code_coverage());
+        if (method_exists(parent::class, 'tearDown')) {
+            parent::tearDown();
+        }
+        $this->tearDownCoverage();
     }
 }

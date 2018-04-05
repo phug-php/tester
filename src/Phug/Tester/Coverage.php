@@ -122,7 +122,9 @@ class Coverage
     protected static function removeDirectory(string $dir)
     {
         static::emptyDirectory($dir);
-        rmdir($dir);
+        if (is_dir($dir)) {
+            rmdir($dir);
+        }
     }
 
     protected static function addEmptyDirectory(string $dir)
@@ -144,6 +146,13 @@ class Coverage
     public function removeCache()
     {
         static::removeDirectory($this->renderer->getOption('cache_dir'));
+    }
+
+    public function initializeCache()
+    {
+        $cache = $this->renderer->getOption('cache_dir');
+        static::addEmptyDirectory($cache);
+        $this->renderer->setOption('cache_dir', realpath($cache));
     }
 
     /**
@@ -413,7 +422,7 @@ class Coverage
                         'phugTesterVersion' => static::VERSION,
                     ]);
 
-                    $this->writeFile($directory.DIRECTORY_SEPARATOR.$filePath.'.html', $html);
+                    $this->writeFile("$directory/$filePath.html", $html);
                 }
                 $coveredNodesCount = isset($coveredNodes[$file]) ? count($coveredNodes[$file]) : 0;
                 $files[$filePath] = [$coveredNodesCount, $fileNodesCount];
@@ -471,20 +480,14 @@ class Coverage
     /**
      * @return Renderer
      */
-    public function createRenderer($renderer, $extensions, $paths, string $cacheDirectory = null) : Renderer
+    public function createRenderer($renderer, array $options = []) : Renderer
     {
         if (is_string($renderer)) {
-            $cache = $cacheDirectory ?: sys_get_temp_dir().DIRECTORY_SEPARATOR.'pug-cache-'.mt_rand(0, 9999999);
-            static::addEmptyDirectory($cache);
-            $renderer = new $renderer([
-                'extensions' => $extensions,
-                'paths'      => $paths,
-                'debug'      => true,
-                'cache_dir'  => realpath($cache),
-            ]);
+            $renderer = new $renderer($options);
         }
 
         $this->renderer = $renderer;
+        $this->initializeCache();
 
         return $renderer;
     }
