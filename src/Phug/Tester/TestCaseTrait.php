@@ -34,7 +34,7 @@ trait TestCaseTrait
     /**
      * @return array
      */
-    protected function getPaths() : array
+    protected function getPaths()
     {
         return ['views'];
     }
@@ -61,8 +61,8 @@ trait TestCaseTrait
     protected function getRendererOptions(string $cacheDirectory = null) : array
     {
         return [
-            'extensions' => $this->getExtensions(),
-            'paths'      => $this->getPaths(),
+            'extensions' => (array) $this->getExtensions(),
+            'paths'      => (array) $this->getPaths(),
             'debug'      => true,
             'cache_dir'  => $cacheDirectory ?: sys_get_temp_dir().'/pug-cache-'.mt_rand(0, 9999999),
         ];

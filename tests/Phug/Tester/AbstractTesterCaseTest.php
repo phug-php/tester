@@ -6,7 +6,7 @@ use Phug\Tester\TestCase;
 
 abstract class AbstractTesterCaseTest extends TestCase
 {
-    protected function getPaths(bool $parent = false) : array
+    protected function getPaths(bool $parent = false)
     {
         return $parent ? parent::getPaths() : [__DIR__.'/../../../example/views'];
     }
