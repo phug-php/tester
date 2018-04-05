@@ -80,3 +80,49 @@ example: `--pug-coverage-html=/path/to/output/directory`.
 the command will fail if the threshold is not reached (status 1) and
 succeed if if does (status 0), you must specify a percentage between
 0 and 100, example: `--pug-coverage-threshold=90`
+
+Configuration
+-------------
+
+When using `TestCaseTrait` or extending `TestCase`, configuration
+methods are available to align the renderer behavior on your app
+test needs.
+
+- `getPaths` by default `['views']`, allows you to change base
+directories where your templates live.
+- `getExtensions` by default `['', '.pug', '.jade']`, allows you
+to change file extensions to detect as pug files (and suffixes
+that will be tried to be appended automatically). The default
+value implies for example that when calling `->renderFile('contact')`
+it will look for the files `contact`, `contact.pug` and `contact.jade`.
+- `getRenderer` by default `'Phug\Renderer'`, allows you to change
+the renderer engine to be used. It can be a class name (then it
+will be created on the fly) or it can be an instance used as is.
+But if you return an instance, you need to set the options manually
+on it.
+- `getRendererOptions` by default:
+```php
+[
+   'extensions' => (array) $this->getExtensions(),
+   'paths'      => (array) $this->getPaths(),
+   'debug'      => true,
+   'cache_dir'  => $cacheDirectory ?: sys_get_temp_dir().'/pug-cache-'.mt_rand(0, 9999999),
+]
+```
+`$cacheDirectory` can be passed as an argument of the method.
+
+By returning a new array in this method, you erase and replace all the
+options, but by using `array_merge` you can add an merge new options.
+
+For example to add shared variables:
+```php
+protected function getRendererOptions($cacheDirectory = null)
+{
+    return array_merge(parent::getRendererOptions($cacheDirectory), [
+        'shared_variables' => [
+            'locale' => 'en',
+            'user'   => new User(),
+        ],
+    ];
+}
+```
