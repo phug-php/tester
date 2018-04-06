@@ -114,13 +114,11 @@ class Cli
         $coverage->setThreshold($coverageThreshold);
         $coverage->runXDebug();
 
-        if (!$this->runPhpunit($phpunitArguments)) {
-            return false;
-        }
+        $run = $this->runPhpunit($phpunitArguments);
 
         $coverage->dumpCoverage($textCoverage, $htmlCoverage);
 
-        return $coverage->isThresholdReached();
+        return $run && $coverage->isThresholdReached();
     }
 
     /**
