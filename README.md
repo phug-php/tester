@@ -8,6 +8,10 @@ What is Phug Tester?
 The Phug tester allow you to write unit tests easily for your Phug templates
 and get coverage of your tests.
 
+As a [PHPUnit](https://phpunit.de/) extension, you can use all the features,
+options and same code you use usually running `phpunit` when your run the
+`phug-tester` command.
+
 Installation
 ------------
 
@@ -16,6 +20,11 @@ Install via Composer
 ```bash
 composer require phug/tester
 ```
+
+Requirements:
+- PHP >= 7.0
+- [XDebug PHP extension](https://xdebug.org/) 
+- [PHPUnit](https://phpunit.de/) >= 5.7 (installed automatically via composer)
 
 Usage
 -----
