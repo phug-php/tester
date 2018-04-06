@@ -118,7 +118,7 @@ class Cli
 
         $coverage->dumpCoverage($textCoverage, $htmlCoverage);
 
-        return $run && $coverage->isThresholdReached();
+        return $coverage->isThresholdReached() && $run;
     }
 
     /**
