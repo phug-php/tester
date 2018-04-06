@@ -29,7 +29,6 @@ class CliTest extends AbstractTesterCaseTest
      * @covers ::runPhpunit
      * @covers ::exec
      * @covers ::run
-     * @covers \Phug\Tester\PhpunitCommand::createRunner
      * @covers \Phug\Tester\Coverage::getPaths
      * @covers \Phug\Tester\Coverage::getLocationPath
      */
@@ -55,7 +54,6 @@ class CliTest extends AbstractTesterCaseTest
      * @covers ::runPhpunit
      * @covers ::exec
      * @covers ::run
-     * @covers \Phug\Tester\PhpunitCommand::createRunner
      * @covers \Phug\Tester\Coverage::getPaths
      * @covers \Phug\Tester\Coverage::getLocationPath
      * @covers \Phug\Tester\Coverage::setThreshold
@@ -149,7 +147,6 @@ class CliTest extends AbstractTesterCaseTest
      * @covers ::runPhpunit
      * @covers ::exec
      * @covers ::run
-     * @covers \Phug\Tester\PhpunitCommand::createRunner
      * @covers \Phug\Tester\Coverage::getPaths
      * @covers \Phug\Tester\Coverage::getLocationPath
      */

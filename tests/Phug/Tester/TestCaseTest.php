@@ -56,7 +56,6 @@ class TestCaseTest extends AbstractTesterCaseTest
      * @covers \Phug\Tester\Coverage::emptyDirectory
      * @covers \Phug\Tester\Coverage::addEmptyDirectory
      * @covers \Phug\Tester\Coverage::removeDirectory
-     * @covers \Phug\Tester\PhpunitCommand::createRunner
      */
     public function testCoverage()
     {

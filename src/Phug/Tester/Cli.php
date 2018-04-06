@@ -2,6 +2,8 @@
 
 namespace Phug\Tester;
 
+use PHPUnit\TextUI\Command;
+
 class Cli
 {
     /**
@@ -25,7 +27,7 @@ class Cli
     private $vendor;
 
     /**
-     * @var PhpunitCommand
+     * @var Command
      */
     private $command;
 
@@ -39,15 +41,29 @@ class Cli
         return realpath($this->vendor."/$script");
     }
 
+    /**
+     * @param array $arguments
+     *
+     * @throws \ReflectionException
+     *
+     * @return bool
+     */
     protected function runPhpunit(array $arguments) : bool
     {
         if (!$this->command) {
-            $this->command = new PhpunitCommand();
+            $this->command = new Command();
         }
 
         return !$this->command->run($arguments, false);
     }
 
+    /**
+     * @param array $arguments
+     *
+     * @throws \ReflectionException
+     *
+     * @return bool
+     */
     protected function exec(array $arguments) : bool
     {
         $phpunit = $this->getVendorScript('phpunit/phpunit/phpunit');
@@ -107,6 +123,13 @@ class Cli
         return $coverage->isThresholdReached();
     }
 
+    /**
+     * @param array $arguments
+     *
+     * @throws \ReflectionException
+     *
+     * @return bool
+     */
     public function run(array $arguments, $exit = true) : bool
     {
         $result = $this->exec($arguments);

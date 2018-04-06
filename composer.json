@@ -18,7 +18,7 @@
         "source": "https://github.com/phug-php/compiler",
         "docs": "http://phug-lang.com/docs"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">=7.0.0",
         "ext-xdebug": "*",
