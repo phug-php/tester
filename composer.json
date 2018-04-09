@@ -2,7 +2,7 @@
     "name": "phug/tester",
     "type": "library",
     "keywords": ["phug", "tester", "template", "dialect", "html", "views", "render", "presentation", "jade", "pug", "html", "php", "phtml"],
-    "description": "",
+    "description": "Test and coverage utils for Pug (ex-Jade) templates rendered with the Phug engine",
     "license": "MIT",
     "homepage": "http://phug-lang.com",
     "authors": [
