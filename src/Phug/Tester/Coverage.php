@@ -71,7 +71,7 @@ class Coverage
      */
     protected $tree = [];
 
-    public static function get() : self
+    public static function get(): self
     {
         if (!static::$singleton) {
             static::$singleton = new static();
@@ -85,7 +85,7 @@ class Coverage
         static::$singleton = null;
     }
 
-    public static function getStatus(int $covered, int $total) : string
+    public static function getStatus(int $covered, int $total): string
     {
         if ($covered / max(1, $total) >= 0.9) {
             return 'success';
@@ -158,7 +158,7 @@ class Coverage
     /**
      * @return bool
      */
-    public function isCoverageAllowedToStop() : bool
+    public function isCoverageAllowedToStop(): bool
     {
         return $this->coverageStoppingAllowed;
     }
@@ -173,7 +173,7 @@ class Coverage
         $this->coverageStoppingAllowed = false;
     }
 
-    protected function getPaths() : array
+    protected function getPaths(): array
     {
         return $this->renderer->getOption('paths');
     }
@@ -199,12 +199,12 @@ class Coverage
     /**
      * @return array
      */
-    public function getLastCoverageData() : array
+    public function getLastCoverageData(): array
     {
         return $this->lastCoverageData;
     }
 
-    protected function getCoverageData() : array
+    protected function getCoverageData(): array
     {
         if (xdebug_code_coverage_started()) {
             $data = xdebug_get_code_coverage();
@@ -223,7 +223,7 @@ class Coverage
         // @codeCoverageIgnoreEnd
     }
 
-    private function getLocationPath(string $path) : string
+    private function getLocationPath(string $path): string
     {
         foreach ($this->getPaths() as $base) {
             $realBase = realpath($base);
@@ -244,7 +244,7 @@ class Coverage
         // @codeCoverageIgnoreEnd
     }
 
-    protected function getTemplateFile(string $file, array $vars) : string
+    protected function getTemplateFile(string $file, array $vars): string
     {
         $__php = file_get_contents(__DIR__."/../../template/$file");
         extract($vars);
@@ -254,7 +254,7 @@ class Coverage
         return ob_get_clean();
     }
 
-    protected function writeFile(string $path, string $contents) : bool
+    protected function writeFile(string $path, string $contents): bool
     {
         $base = dirname($path);
         if (!is_dir($base)) {
@@ -294,7 +294,7 @@ class Coverage
         }
     }
 
-    protected function countFileNodes(string $file) : int
+    protected function countFileNodes(string $file): int
     {
         $document = $this->renderer->getCompiler()->compileFileIntoElement($file);
         $list = new SplObjectStorage();
@@ -480,7 +480,7 @@ class Coverage
     /**
      * @return Renderer
      */
-    public function createRenderer($renderer, array $options = []) : Renderer
+    public function createRenderer($renderer, array $options = []): Renderer
     {
         if (is_string($renderer)) {
             $renderer = new $renderer($options);
@@ -500,7 +500,7 @@ class Coverage
         $this->threshold = floatval($threshold);
     }
 
-    public function isThresholdReached() : bool
+    public function isThresholdReached(): bool
     {
         if ($this->threshold) {
             echo "\nOverall coverage is {$this->lastCoverageRate}%.\n";

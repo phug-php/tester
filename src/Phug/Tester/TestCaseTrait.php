@@ -20,7 +20,7 @@ trait TestCaseTrait
      *
      * @return string
      */
-    protected function renderFile($file, $locals = [], $options = null) : string
+    protected function renderFile($file, $locals = [], $options = null): string
     {
         if ($options) {
             $this->renderer->setOptions($options);

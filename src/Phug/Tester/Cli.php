@@ -36,7 +36,7 @@ class Cli
         $this->vendor = $vendor;
     }
 
-    public function getVendorScript(string $script) : string
+    public function getVendorScript(string $script): string
     {
         return realpath($this->vendor."/$script");
     }
@@ -48,7 +48,7 @@ class Cli
      *
      * @return bool
      */
-    protected function runPhpunit(array $arguments) : bool
+    protected function runPhpunit(array $arguments): bool
     {
         if (!$this->command) {
             $this->command = new Command();
@@ -64,7 +64,7 @@ class Cli
      *
      * @return bool
      */
-    protected function exec(array $arguments) : bool
+    protected function exec(array $arguments): bool
     {
         $phpunit = $this->getVendorScript('phpunit/phpunit/phpunit');
         $phpunitArguments = [$phpunit];
@@ -128,7 +128,7 @@ class Cli
      *
      * @return bool
      */
-    public function run(array $arguments, $exit = true) : bool
+    public function run(array $arguments, $exit = true): bool
     {
         $result = $this->exec($arguments);
 
