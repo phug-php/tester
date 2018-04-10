@@ -380,6 +380,10 @@ class Coverage
         $files = [];
         $this->tree = [];
         foreach ($this->getPaths() as $path) {
+            if (!is_dir($path)) {
+                continue;
+            }
+
             foreach ($this->renderer->scanDirectory($path) as $file) {
                 $coveredState = 0;
                 $file = realpath($file);
@@ -441,9 +445,9 @@ class Coverage
         if ($directory) {
             $this->writeSummaries($directory);
         }
-        $pad = max(array_map(function ($path) {
+        $pad = max(array_pad(array_map(function ($path) {
             return strlen($path);
-        }, array_keys($files))) + 3;
+        }, array_keys($files)), 1, 0)) + 3;
         $coveredNodes = 0;
         $nodes = 0;
         foreach ($files as $file => $stats) {
@@ -490,6 +494,14 @@ class Coverage
         $this->initializeCache();
 
         return $renderer;
+    }
+
+    /**
+     * @return Renderer
+     */
+    public function getRenderer(): Renderer
+    {
+        return $this->renderer;
     }
 
     /**
