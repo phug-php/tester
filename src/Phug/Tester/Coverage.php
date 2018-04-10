@@ -297,7 +297,7 @@ class Coverage
         $compiler = $this->renderer->getCompiler();
         $file = $compiler->resolve($file);
         $contents = $compiler->getFileContents($file);
-        $document = $this->renderer->getCompiler()->getParser()->parse($contents);
+        $document = $this->renderer->getCompiler()->getParser()->parse($contents, $file);
         $list = new SplObjectStorage();
 
         $this->listNodes($list, $document);
