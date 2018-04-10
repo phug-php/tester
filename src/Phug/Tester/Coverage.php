@@ -2,7 +2,7 @@
 
 namespace Phug\Tester;
 
-use Phug\Formatter\ElementInterface;
+use Phug\Ast\NodeInterface as AstNodeInterface;
 use Phug\Parser\Node\DocumentNode;
 use Phug\Parser\NodeInterface;
 use Phug\Renderer;
@@ -279,24 +279,25 @@ class Coverage
         }
     }
 
-    protected function listNodes(SplObjectStorage $list, ElementInterface $element)
+    protected function listNodes(SplObjectStorage $list, $node)
     {
-        $node = $element->getOriginNode();
-        if ($node && !($node instanceof DocumentNode)) {
+        if ($node instanceof NodeInterface && !($node instanceof DocumentNode) && !$list->offsetExists($node)) {
             $list->attach($node);
             $this->recordLocation($node->getSourceLocation());
         }
-
-        foreach ($element->getChildren() as $child) {
-            if ($child instanceof ElementInterface) {
-                static::listNodes($list, $child);
+        if ($node instanceof AstNodeInterface) {
+            foreach ($node->getChildren() as $child) {
+                $this->listNodes($list, $child);
             }
         }
     }
 
     protected function countFileNodes(string $file): int
     {
-        $document = $this->renderer->getCompiler()->compileFileIntoElement($file);
+        $compiler = $this->renderer->getCompiler();
+        $file = $compiler->resolve($file);
+        $contents = $compiler->getFileContents($file);
+        $document = $this->renderer->getCompiler()->getParser()->parse($contents);
         $list = new SplObjectStorage();
 
         $this->listNodes($list, $document);
