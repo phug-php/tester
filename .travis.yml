@@ -1,24 +1,24 @@
-
 language: php
 
 git:
-    depth: 5
+  depth: 5
 
 php:
-    - 7.0
-    - 7.1
-    - 7.2
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
 
 install:
-    - travis_retry composer self-update
-    - travis_retry composer install
+  - travis_retry composer self-update
+  - travis_retry composer install
 
 script:
-    - vendor/bin/phug-dev check --report --ignore-tests --ignore-debug --coverage-php-version=7.2
+  - vendor/bin/phug-dev check --report --ignore-tests --ignore-debug --coverage-php-version=7.2
 
 notifications:
-    slack: phug:nzXFnxhU14RWK2EQSDL0u08z
+  slack: phug:nzXFnxhU14RWK2EQSDL0u08z
 
 addons:
-    code_climate:
-        repo_token: 141d35eea92de74e5020f38746f4aaaf4cc8cc2a5277c292474d427da841c084
+  code_climate:
+    repo_token: 141d35eea92de74e5020f38746f4aaaf4cc8cc2a5277c292474d427da841c084
