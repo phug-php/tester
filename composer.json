@@ -20,10 +20,10 @@
     },
     "minimum-stability": "stable",
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.1.0",
         "ext-xdebug": "*",
         "phug/renderer": "^0.4.0",
-        "phpunit/phpunit": "^5.7 || ^6.0 || ^7.0"
+        "phpunit/phpunit": "^6.0 || ^7.0 || ^8.0"
     },
     "require-dev": {
         "phug/dev-tool": "^0.1.12"

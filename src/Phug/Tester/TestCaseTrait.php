@@ -73,12 +73,12 @@ trait TestCaseTrait
     /**
      * @throws \Phug\RendererException
      */
-    protected function setUpCoverage()
+    protected function setUpCoverage(): void
     {
         $this->renderer = Coverage::get()->createRenderer($this->getRenderer(), $this->getRendererOptions());
     }
 
-    protected function tearDownCoverage()
+    protected function tearDownCoverage(): void
     {
         Coverage::get()->storeCoverage(xdebug_get_code_coverage());
     }
@@ -86,7 +86,7 @@ trait TestCaseTrait
     /**
      * @throws \Phug\RendererException
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         if (method_exists(parent::class, 'setUp')) {
             parent::setUp();
@@ -94,7 +94,7 @@ trait TestCaseTrait
         $this->setUpCoverage();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (method_exists(parent::class, 'tearDown')) {
             parent::tearDown();
